@@ -2,9 +2,10 @@ object FormJogo: TFormJogo
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
   Caption = 'River Raid'
-  ClientHeight = 520
-  ClientWidth = 500
+  ClientHeight = 530
+  ClientWidth = 510
   Color = clBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

@@ -4,25 +4,31 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.MPlayer,pngimage;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.MPlayer,PngImage, Jpeg;
 
 type
   TFormJogo = class(TForm)
     painelEsq: TPanel;
     painelDir: TPanel;
+
     nave: TImage;
-    tempoTiro: TTimer;
     navio: TImage;
     helicoptero: TImage;
     ajato: TImage;
+
     tempoInimigo: TTimer;
+    tempoTiro: TTimer;
+
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+
     procedure atirar();
     procedure criarTiro();
+    procedure criarInimigo();
+
     procedure tempoTiroTimer(Sender: TObject);
     procedure tempoInimigoTimer(Sender: TObject);
-    procedure criarInimigo();
+
     function  VerificaColisao(O1, O2 : TControl):boolean;
   private
     { Private declarations }
@@ -32,6 +38,7 @@ type
 
 var
   FormJogo: TFormJogo;
+
   NumTiros: Integer;
   bateu : Boolean;
 
@@ -43,6 +50,7 @@ procedure TFormJogo.FormCreate(Sender: TObject);
 begin
   DoubleBuffered := True;
   nave.Picture.LoadFromFile('D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\eu.png');
+
   navio.Picture.LoadFromFile('D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\inimigo\port.png');
   helicoptero.Picture.LoadFromFile('D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\inimigo\helicoptero-militar.png');
   ajato.Picture.LoadFromFile('D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\inimigo\plane2.png');
@@ -52,9 +60,10 @@ begin
   helicoptero.Visible := False;
   ajato.Visible := False;
 
-  tempoInimigo.Enabled := True;
-  bateu := True;
+  bateu := false;
   NumTiros := 1;
+
+  criarInimigo();
   end;
 
 procedure TFormJogo.FormKeyDown(Sender: TObject; var Key: Word;
@@ -75,7 +84,6 @@ begin
  end;
 
 procedure TFormJogo.atirar();
-var tiro: TPanel;
  begin
     criarTiro();
     tempoTiro.Enabled := True;
@@ -84,8 +92,9 @@ var tiro: TPanel;
  procedure TFormJogo.criarTiro();
 var tiro: TPanel;
  begin
+    inc(NumTiros);
 
-    if (NumTiros < 20 ) then
+    if not(bateu) and (NumTiros < 50 ) then
     begin
       tiro := TPanel.Create(FormJogo);
       tiro.Parent := FormJogo;
@@ -97,37 +106,11 @@ var tiro: TPanel;
       tiro.ParentBackground := False;
       tiro.ParentColor := False;
       tiro.Caption := '';
-      tiro.Tag := NumTiros;
       tiro.Visible := True;
+      tiro.Tag := 1;
     end;
 
  end;
-
-procedure TFormJogo.tempoInimigoTimer(Sender: TObject);
-var t : tpanel;
-begin
-  navio.Top :=  navio.Top +1;
-  ajato.Top :=  ajato.Top +3;
-  helicoptero.Top :=  helicoptero.Top +2;
-  tempoInimigo.Interval := 4;
-
-   if not(bateu) then
-   begin
-      t         := TPanel.Create(FormJogo);
-      t.Parent  := FormJogo;
-      t.Height  := 28;
-      t.Width   := 28;
-      t.ParentBackground := false;
-      t.ParentColor := false;
-      t.Color   := $008552E4;
-      t.Caption := '';
-      t.Top     := 40;
-      t.Left    := Random(FormJogo.Width - 50);
-      t.Tag     := 1;
-      t.Visible := True;
-   end;
-   t.Top := t.Top +1;
-end;
 
 procedure TFormJogo.criarInimigo();
 var inimigoNavio, inimigoHelicoptero, inimigoAjato : Integer;
@@ -148,29 +131,51 @@ begin
    helicoptero.Top := 0;
    helicoptero.Visible := True;
 
+   // ativa a movimentação dos inimigos
    tempoInimigo.Enabled := True;
 
+end;
+
+procedure TFormJogo.tempoInimigoTimer(Sender: TObject);
+begin
+  navio.Top :=  navio.Top + 5;
+  helicoptero.Top := helicoptero.Top + 6;
+  ajato.Top := ajato.Top + 8;
 end;
 
 procedure TFormJogo.tempoTiroTimer(Sender: TObject);
 var i: Integer;
 begin
-
-    for i := 0 to FormJogo.ComponentCount-1 do
+    if not bateu then
     begin
-      if FormJogo.Components[i] is TPanel then
+
+      for i := 0 to FormJogo.ComponentCount-1 do
       begin
-        if TPanel(FormJogo.Components[i]).Tag = NumTiros then
+        if FormJogo.Components[i] is TPanel then
         begin
-           TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top -3;
-           tempoTiro.Interval := 1;
+          // Verificando se é o tiro
+          if TPanel(FormJogo.Components[i]).Tag = 1 then
+          begin
+            // Movendo o tiro pra cima
+            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top - 3;
 
-           if VerificaColisao(TPanel(FormJogo.Components[i]), navio) then
+            // Movendo o tiro para baixo quando ele passar do limite da tela
+            if TPanel(FormJogo.Components[i]).Top > FormJogo.Height then
             begin
-
+              TPanel(FormJogo.Components[i]).Top := nave.Top;
+              TPanel(FormJogo.Components[i]).Left := nave.Left + 22;
             end;
+
+            //Verificando se o Tiro acertou o inimigo
+            if VerificaColisao(TPanel(FormJogo.Components[i]), navio) then
+             begin
+                bateu := True;
+                showmessage('Se fodeu');
+             end;
+          end;
         end;
       end;
+
     end;
 
 

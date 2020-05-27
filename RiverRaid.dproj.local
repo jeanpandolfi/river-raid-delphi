@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2020/03/13 15:18:15.000.766,=D:\Documentos\Desktop\Delphi\Unit1.pas</Transaction>
+    <Transaction>2020/03/13 15:21:26.000.661,D:\Documentos\Desktop\Delphi\Unit1.dfm=D:\Documentos\Desktop\01 - Jogo\Rive Rider\RiverRide.dfm</Transaction>
+    <Transaction>2020/03/13 15:21:26.000.661,D:\Documentos\Desktop\Delphi\Unit1.pas=D:\Documentos\Desktop\01 - Jogo\Rive Rider\RiverRide.pas</Transaction>
+    <Transaction>2020/03/13 15:22:26.000.048,D:\Documentos\Desktop\Delphi\Project1.dproj=D:\Documentos\Desktop\01 - Jogo\Rive Rider\RiverRaiddproj.dproj</Transaction>
+    <Transaction>2020/03/13 15:23:04.000.465,D:\Documentos\Desktop\01 - Jogo\Rive Rider\RiverRaiddproj.dproj=D:\Documentos\Desktop\01 - Jogo\Rive Rider\RiverRaid.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

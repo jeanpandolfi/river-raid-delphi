@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.MPlayer,PngImage, Jpeg;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.MPlayer,PngImage, Jpeg,
+  Vcl.StdCtrls;
 
 type
   TFormJogo = class(TForm)
@@ -18,18 +19,28 @@ type
 
     tempoInimigo: TTimer;
     tempoTiro: TTimer;
+    criaInimigo: TTimer;
+
+    mensagemPerdeu: TPanel;
+    jogarNao: TButton;
+    jogarSim: TButton;
+    Label1: TLabel;
+    Label2: TLabel;
+
 
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
     procedure atirar();
     procedure criarTiro();
-    procedure criarInimigo();
+    procedure criarInimigo(Sender: TObject);
 
     procedure tempoTiroTimer(Sender: TObject);
     procedure tempoInimigoTimer(Sender: TObject);
 
     function  VerificaColisao(O1, O2 : TControl):boolean;
+
+    procedure exibeBatida();
   private
     { Private declarations }
   public
@@ -39,7 +50,7 @@ type
 var
   FormJogo: TFormJogo;
 
-  NumTiros: Integer;
+  NumTiros, numInimigo: Integer;
   bateu : Boolean;
 
 implementation
@@ -62,15 +73,17 @@ begin
 
   bateu := false;
   NumTiros := 1;
+  numInimigo := 0;
 
-  criarInimigo();
+  criaInimigo.OnTimer := criarInimigo;
+  criaInimigo.Enabled := true;
   end;
 
 procedure TFormJogo.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
  var incremento : integer;
 begin
-  incremento := 7;
+  incremento := 10;
 
   case key of
     VK_LEFT  : if (nave.Left >= painelEsq.Width) then
@@ -83,6 +96,7 @@ begin
   end;
  end;
 
+
 procedure TFormJogo.atirar();
  begin
     criarTiro();
@@ -94,7 +108,7 @@ var tiro: TPanel;
  begin
     inc(NumTiros);
 
-    if not(bateu) and (NumTiros < 50 ) then
+    if (NumTiros < 20000 ) then
     begin
       tiro := TPanel.Create(FormJogo);
       tiro.Parent := FormJogo;
@@ -112,36 +126,6 @@ var tiro: TPanel;
 
  end;
 
-procedure TFormJogo.criarInimigo();
-var inimigoNavio, inimigoHelicoptero, inimigoAjato : Integer;
-begin
-   inimigoNavio := random(painelDir.Left-painelEsq.Left);
-   inimigoHelicoptero := random(painelDir.Left-painelEsq.Left);
-   inimigoAjato := random(painelDir.Left-painelEsq.Left);
-
-   navio.Left := inimigoNavio;
-   navio.Top := 0;
-   navio.Visible := True;
-
-   ajato.Left := inimigoAjato;
-   ajato.Top := 0;
-   ajato.Visible := True;
-
-   helicoptero.Left := inimigoHelicoptero;
-   helicoptero.Top := 0;
-   helicoptero.Visible := True;
-
-   // ativa a movimentação dos inimigos
-   tempoInimigo.Enabled := True;
-
-end;
-
-procedure TFormJogo.tempoInimigoTimer(Sender: TObject);
-begin
-  navio.Top :=  navio.Top + 5;
-  helicoptero.Top := helicoptero.Top + 6;
-  ajato.Top := ajato.Top + 8;
-end;
 
 procedure TFormJogo.tempoTiroTimer(Sender: TObject);
 var i: Integer;
@@ -157,20 +141,22 @@ begin
           if TPanel(FormJogo.Components[i]).Tag = 1 then
           begin
             // Movendo o tiro pra cima
-            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top - 3;
+            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top - 15;
 
             // Movendo o tiro para baixo quando ele passar do limite da tela
             if TPanel(FormJogo.Components[i]).Top > FormJogo.Height then
             begin
               TPanel(FormJogo.Components[i]).Top := nave.Top;
-              TPanel(FormJogo.Components[i]).Left := nave.Left + 22;
+              TPanel(FormJogo.Components[i]).Left := nave.Left + 1;
             end;
 
-            //Verificando se o Tiro acertou o inimigo
+            //Verificando se o Tiro acertou o inimigo NAVIO
             if VerificaColisao(TPanel(FormJogo.Components[i]), navio) then
              begin
-                bateu := True;
-                showmessage('Se fodeu');
+                navio.Visible := false;
+                //Movendo o tiro para baixo quando acertar o inimigo
+                //TPanel(FormJogo.Components[i]).Top := nave.Top;
+                //TPanel(FormJogo.Components[i]).Left := nave.Left + 1;
              end;
           end;
         end;
@@ -178,8 +164,144 @@ begin
 
     end;
 
+end;
+
+
+procedure TFormJogo.criarInimigo(Sender: TObject);
+var inimigoNavio, inimigoHelicoptero, inimigoAjato : TImage;
+begin
+  inc(numInimigo);
+
+  if not bateu and (numInimigo < 10) then
+   begin
+      // NAVIO
+     inimigoNavio := TImage.Create(FormJogo);
+     inimigoNavio.Parent := FormJogo;
+     inimigoNavio.Picture.LoadFromFile('D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\inimigo\port.png');
+     inimigoNavio.Height := 33;
+     inimigoNavio.Width  := 33;
+     inimigoNavio.Stretch := true;
+     inimigoNavio.Proportional := true;
+
+     inimigoNavio.Left := random(painelDir.Left-painelEsq.Left);;
+     inimigoNavio.Top := 0;
+     inimigoNavio.Visible := True;
+     inimigoNavio.Tag := 2;
+
+     // AJATO
+     inimigoAjato := TImage.Create(FormJogo);
+     inimigoAjato.Parent := FormJogo;
+     inimigoAjato.Picture.LoadFromFile('D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\inimigo\plane2.png');
+     inimigoAjato.Height := 41;
+     inimigoAjato.Width  := 39;
+     inimigoAjato.Stretch := true;
+     inimigoAjato.Proportional := true;
+
+     inimigoAjato.Left := random(painelDir.Left-painelEsq.Left);
+     inimigoAjato.Top := 0;
+     inimigoAjato.Visible := True;
+     inimigoAjato.Tag := 4;
+
+     // HELICOPTERO
+     inimigoHelicoptero := TImage.Create(FormJogo);
+     inimigoHelicoptero.Parent := FormJogo;
+     inimigoHelicoptero.Picture.LoadFromFile('D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\inimigo\helicoptero-militar.png');
+     inimigoHelicoptero.Height := 40;
+     inimigoHelicoptero.Width  := 46;
+     inimigoHelicoptero.Stretch := true;
+     inimigoHelicoptero.Proportional := true;
+
+     inimigoHelicoptero.Left := random(painelDir.Left-painelEsq.Left);
+     inimigoHelicoptero.Top := 0;
+     inimigoHelicoptero.Visible := True;
+     inimigoHelicoptero.Tag := 3;
+
+     // ativa a movimentação dos inimigos
+     tempoInimigo.Enabled := True;
+   end;
+end;
+
+
+procedure TFormJogo.tempoInimigoTimer(Sender: TObject);
+var i: Integer;
+begin
+  if not bateu then
+    begin
+
+      for i := 0 to FormJogo.ComponentCount-1 do
+      begin
+        if FormJogo.Components[i] is TImage then
+        begin
+
+          // Verificando se é o Navio
+          if TPanel(FormJogo.Components[i]).Tag = 2 then
+          begin
+            // Movendo o NAVIO pra baixo
+            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top + 5;
+
+            {// Movendo o inimigo para cima quando ele passar do limite da tela
+            if TPanel(FormJogo.Components[i]).Top < FormJogo.Height then
+            begin
+              TPanel(FormJogo.Components[i]).Top := 0;
+              TPanel(FormJogo.Components[i]).Left := random(painelDir.Left-painelEsq.Left);
+            end;  }
+
+            //Verificando se o INIMIGO acertou A NAVE
+            if VerificaColisao(TPanel(FormJogo.Components[i]), nave) then
+             begin
+                bateu := true;
+                exibeBatida();
+             end;
+          end;
+
+          // Verificando se é o Helicoptero
+          if TPanel(FormJogo.Components[i]).Tag = 3 then
+          begin
+            // Movendo o inimigo pra baixo
+            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top + 10;
+
+            {// Movendo o inimigo para cima quando ele passar do limite da tela
+            if TPanel(FormJogo.Components[i]).Top < FormJogo.Height then
+            begin
+              TPanel(FormJogo.Components[i]).Top := 0;
+              TPanel(FormJogo.Components[i]).Left := random(painelDir.Left-painelEsq.Left);
+            end;  }
+
+            //Verificando se o INIMIGO acertou A NAVE
+            if VerificaColisao(TPanel(FormJogo.Components[i]), nave) then
+             begin
+                bateu := true;
+                exibeBatida();
+             end;
+          end;
+
+          // Verificando se é o Ajato
+          if TPanel(FormJogo.Components[i]).Tag = 4 then
+          begin
+            // Movendo o inimigo pra baixo
+            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top + 15;
+
+            {// Movendo o inimigo para cima quando ele passar do limite da tela
+            if TPanel(FormJogo.Components[i]).Top < FormJogo.Height then
+            begin
+              TPanel(FormJogo.Components[i]).Top := 0;
+              TPanel(FormJogo.Components[i]).Left := random(painelDir.Left-painelEsq.Left);
+            end;  }
+
+            //Verificando se o INIMIGO acertou A NAVE
+            if VerificaColisao(TPanel(FormJogo.Components[i]), nave) then
+             begin
+                bateu := true;
+                exibeBatida();
+             end;
+          end;
+        end;
+      end;
+
+    end;
 
 end;
+
 
 function TFormJogo.VerificaColisao(O1, O2 : TControl): boolean;
 var topo, baixo, esquerda, direita : boolean;
@@ -222,4 +344,9 @@ begin
 
 end;
 
+
+procedure TFormJogo.exibeBatida;
+begin
+    mensagemPerdeu.Visible := True;
+end;
  end.

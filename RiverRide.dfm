@@ -4,8 +4,8 @@ object FormJogo: TFormJogo
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'River Raid'
-  ClientHeight = 530
-  ClientWidth = 510
+  ClientHeight = 529
+  ClientWidth = 501
   Color = clBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,10 +18,10 @@ object FormJogo: TFormJogo
   PixelsPerInch = 96
   TextHeight = 13
   object nave: TImage
-    Left = 296
-    Top = 472
-    Width = 49
-    Height = 49
+    Left = 300
+    Top = 476
+    Width = 45
+    Height = 45
     Picture.Data = {
       0954506E67496D61676589504E470D0A1A0A0000000D49484452000000300000
       003008060000005702F987000000017352474200AECE1CE90000000467414D41
@@ -65,6 +65,8 @@ object FormJogo: TFormJogo
       5BFD53A600A034E6ACDC68A1577E9746547DE3ADC2FAFE2B11FC8063877306C0
       0864BACEAD0298415601565AFE023FCB414FD3E250740000000049454E44AE42
       6082}
+    Proportional = True
+    Stretch = True
   end
   object navio: TImage
     Left = 240
@@ -99,8 +101,8 @@ object FormJogo: TFormJogo
   object helicoptero: TImage
     Left = 143
     Top = 40
-    Width = 49
-    Height = 41
+    Width = 48
+    Height = 40
     Picture.Data = {
       0954506E67496D61676589504E470D0A1A0A0000000D49484452000000300000
       003008060000005702F98700000006624B474400FF00FF00FFA0BDA793000005
@@ -227,16 +229,73 @@ object FormJogo: TFormJogo
     ParentBackground = False
     TabOrder = 1
   end
+  object mensagemPerdeu: TPanel
+    Left = 143
+    Top = 244
+    Width = 202
+    Height = 109
+    Color = clSkyBlue
+    ParentBackground = False
+    TabOrder = 2
+    Visible = False
+    object Label1: TLabel
+      Left = 32
+      Top = 48
+      Width = 126
+      Height = 13
+      Caption = 'Deseja Jogar Novamente?'
+    end
+    object Label2: TLabel
+      Left = 16
+      Top = 7
+      Width = 174
+      Height = 35
+      Alignment = taCenter
+      Caption = 'VOC'#202' PERDEU'
+      Color = clRed
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clRed
+      Font.Height = -27
+      Font.Name = 'Trebuchet MS'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object jogarNao: TButton
+      Left = 16
+      Top = 72
+      Width = 57
+      Height = 25
+      Caption = 'N'#227'o'
+      TabOrder = 0
+    end
+    object jogarSim: TButton
+      Left = 128
+      Top = 72
+      Width = 57
+      Height = 25
+      Caption = 'Sim'
+      TabOrder = 1
+    end
+  end
   object tempoTiro: TTimer
     Enabled = False
+    Interval = 50
     OnTimer = tempoTiroTimer
     Left = 432
     Top = 344
   end
   object tempoInimigo: TTimer
     Enabled = False
+    Interval = 50
     OnTimer = tempoInimigoTimer
     Left = 432
     Top = 416
+  end
+  object criaInimigo: TTimer
+    Enabled = False
+    Interval = 3000
+    Left = 432
+    Top = 472
   end
 end

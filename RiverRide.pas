@@ -25,7 +25,11 @@ type
     jogarNao: TButton;
     jogarSim: TButton;
     Label1: TLabel;
-    Label2: TLabel;
+    mensagemFimJogo: TLabel;
+    fase: TLabel;
+
+    trilha: TMediaPlayer;
+    levelUp: TMediaPlayer;
 
 
     procedure FormCreate(Sender: TObject);
@@ -38,6 +42,8 @@ type
     procedure tempoTiroTimer(Sender: TObject);
     procedure tempoInimigoTimer(Sender: TObject);
 
+    procedure declararVitoria();
+    procedure mudarNivel();
     function  VerificaColisao(O1, O2 : TControl):boolean;
 
     procedure exibeBatida();
@@ -77,6 +83,10 @@ begin
 
   criaInimigo.OnTimer := criarInimigo;
   criaInimigo.Enabled := true;
+
+  trilha.FileName := 'D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\sons\trilha.mp3';
+  trilha.Open;
+  trilha.Play;
   end;
 
 procedure TFormJogo.FormKeyDown(Sender: TObject; var Key: Word;
@@ -96,7 +106,6 @@ begin
   end;
  end;
 
-
 procedure TFormJogo.atirar();
  begin
     criarTiro();
@@ -105,6 +114,7 @@ procedure TFormJogo.atirar();
 
  procedure TFormJogo.criarTiro();
 var tiro: TPanel;
+tiroSom : TMediaPlayer ;
  begin
 
     if not bateu then
@@ -121,6 +131,13 @@ var tiro: TPanel;
       tiro.Caption := '';
       tiro.Visible := True;
       tiro.Tag := 1;
+
+//      tiroSom := TMediaPlayer.Create(FormJogo);
+//      tiroSom.Parent   := FormJogo;
+//      tiroSom.Visible  := false;
+//      tiroSom.FileName := 'D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\sons\tiro.mp3';
+//      tiroSom.Open;
+//      tiroSom.Play;
     end;
 
  end;
@@ -147,22 +164,45 @@ begin
             begin
               if FormJogo.Components[j] is TImage then
               begin
-                // Verificando se é o novio ou ajato ou helicoptero
+                // Verificando se é o navio ou ajato ou helicoptero
                 if (TImage(FormJogo.Components[j]).Tag = 2) or (TImage(FormJogo.Components[j]).Tag = 3) or (TImage(FormJogo.Components[j]).Tag = 4) then
                 begin
                   //Verificando se o Tiro acertou o inimigo
                   if VerificaColisao(TPanel(FormJogo.Components[i]), TImage(FormJogo.Components[j])) then
                    begin
-                      inc(numInimigosMatados);
-
+                      numInimigosMatados := numInimigosMatados + 1;
+                      // sumir com o Tiro
+                      TPanel(FormJogo.Components[i]).Visible := False;
+                      TPanel(FormJogo.Components[i]).Left := 1000;
+                      // sumir com o Inimigo
                       TImage(FormJogo.Components[j]).Visible := false;
-                      TImage(FormJogo.Components[j]).Left := 500;
+                      TImage(FormJogo.Components[j]).Left := 1000;
 
                       // aumentando o nível do Jogo
-                      if (numInimigosMatados = 10) or (numInimigosMatados = 20) or (numInimigosMatados = 30) then
+                      if (numInimigosMatados = 20) then
                       begin
-                        inc(nivel);
+                        nivel := 2;
+                        mudarNivel();
+                        fase.Caption := 'Fase: ' + inttostr(nivel);
+                        fase.Font.Color := clFuchsia;
+                        criaInimigo.Interval := 2500;
                       end;
+
+                      if (numInimigosMatados = 40) then
+                      begin
+                        nivel := 3;
+                        mudarNivel();
+                        fase.Caption := 'Fase: ' + inttostr(nivel);
+                        fase.Font.Color := clRed;
+                        criaInimigo.Interval := 2000;
+                      end;
+
+                      if (numInimigosMatados = 60) then
+                      begin
+                        bateu:= true;
+                        declararVitoria();
+                      end;
+
                    end;
                 end;
               end;
@@ -174,6 +214,7 @@ begin
     end;
 
 end;
+
 
 
 procedure TFormJogo.criarInimigo(Sender: TObject);
@@ -245,7 +286,7 @@ begin
           if TPanel(FormJogo.Components[i]).Tag = 2 then
           begin
             // Movendo o NAVIO pra baixo
-            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top + 5 * nivel;
+            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top + 2 * nivel;
 
             //Verificando se o NAVIO acertou A NAVE
             if VerificaColisao(TPanel(FormJogo.Components[i]), nave) then
@@ -259,7 +300,7 @@ begin
           if TPanel(FormJogo.Components[i]).Tag = 3 then
           begin
             // Movendo o HELICOPTERO pra baixo
-            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top + 10 * nivel;
+            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top + 5 * nivel;
 
             //Verificando se o HELICOPTERO acertou A NAVE
             if VerificaColisao(TPanel(FormJogo.Components[i]), nave) then
@@ -273,7 +314,7 @@ begin
           if TPanel(FormJogo.Components[i]).Tag = 4 then
           begin
             // Movendo o AJATO pra baixo
-            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top + 15 * nivel;
+            TPanel(FormJogo.Components[i]).Top := TPanel(FormJogo.Components[i]).Top + 7 * nivel;
 
             //Verificando se o AJATO acertou A NAVE
             if VerificaColisao(TPanel(FormJogo.Components[i]), nave) then
@@ -327,7 +368,57 @@ end;
 
 
 procedure TFormJogo.exibeBatida;
+var explosao: TImage;
+explosaoSom : TMediaPlayer ;
 begin
-    mensagemPerdeu.Visible := True;
+     explosao := TImage.Create(FormJogo);
+     explosao.Parent := FormJogo;
+     explosao.Picture.LoadFromFile('D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\explosao.png');
+     explosao.Height := 50;
+     explosao.Width  := 50;
+     explosao.Stretch := true;
+     explosao.Proportional := true;
+
+     explosao.Left := nave.Left;
+     explosao.Top := nave.Top;
+     explosao.Visible := True;
+
+     trilha.Close;
+
+     explosaoSom := TMediaPlayer.Create(FormJogo);
+     explosaoSom.Parent   := FormJogo;
+     explosaoSom.Visible  := false;
+     explosaoSom.FileName := 'D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\sons\explosao.mp3';
+     explosaoSom.Open;
+     explosaoSom.Play;
+
+     mensagemPerdeu.Visible := True;
+end;
+
+procedure TFormJogo.declararVitoria;
+var somVitoria: TMediaPlayer;
+begin
+    trilha.Close;
+
+    somVitoria := TMediaPlayer.Create(FormJogo);
+    somVitoria.Parent   := FormJogo;
+    somVitoria.Visible  := false;
+    somVitoria.FileName := 'D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\sons\vitoria.mp3';
+    somVitoria.Open;
+    somVitoria.Play;
+
+    mensagemFimJogo.Caption := 'VOCÊ GANHOU!';
+    mensagemFimJogo.Font.Color := clGreen;
+
+    mensagemPerdeu.Visible := true;
+end;
+
+procedure TFormJogo.mudarNivel;
+begin
+    levelUp.Close;
+    levelUp.FileName := 'D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\sons\levelup.mp3';
+    levelUp.Open;
+    levelUp.Play;
+
 end;
  end.

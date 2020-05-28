@@ -18,8 +18,8 @@ object FormJogo: TFormJogo
   PixelsPerInch = 96
   TextHeight = 13
   object nave: TImage
-    Left = 300
-    Top = 476
+    Left = 228
+    Top = 359
     Width = 45
     Height = 45
     Picture.Data = {
@@ -228,6 +228,39 @@ object FormJogo: TFormJogo
     Color = clGreen
     ParentBackground = False
     TabOrder = 1
+    object fase: TLabel
+      Left = 8
+      Top = 273
+      Width = 85
+      Height = 23
+      Caption = ' Fase: 1'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clYellow
+      Font.Height = -19
+      Font.Name = 'Verdana'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object trilha: TMediaPlayer
+      Left = 24
+      Top = 216
+      Width = 253
+      Height = 30
+      DoubleBuffered = True
+      Visible = False
+      ParentDoubleBuffered = False
+      TabOrder = 0
+    end
+    object levelUp: TMediaPlayer
+      Left = 24
+      Top = 168
+      Width = 253
+      Height = 30
+      DoubleBuffered = True
+      Visible = False
+      ParentDoubleBuffered = False
+      TabOrder = 1
+    end
   end
   object mensagemPerdeu: TPanel
     Left = 143
@@ -245,7 +278,7 @@ object FormJogo: TFormJogo
       Height = 13
       Caption = 'Deseja Jogar Novamente?'
     end
-    object Label2: TLabel
+    object mensagemFimJogo: TLabel
       Left = 16
       Top = 7
       Width = 174
@@ -280,7 +313,7 @@ object FormJogo: TFormJogo
   end
   object tempoTiro: TTimer
     Enabled = False
-    Interval = 50
+    Interval = 30
     OnTimer = tempoTiroTimer
     Left = 432
     Top = 344

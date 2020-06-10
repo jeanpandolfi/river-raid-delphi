@@ -13,12 +13,13 @@ object FormJogo: TFormJogo
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Visible = True
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
   object nave: TImage
-    Left = 228
+    Left = 207
     Top = 359
     Width = 45
     Height = 45
@@ -212,13 +213,38 @@ object FormJogo: TFormJogo
       454E44AE426082}
   end
   object painelEsq: TPanel
-    Left = 0
+    Left = -3
     Top = 0
     Width = 100
     Height = 529
     Color = clGreen
     ParentBackground = False
     TabOrder = 0
+    object lblnomeJogador: TLabel
+      Left = 13
+      Top = 40
+      Width = 5
+      Height = 19
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clYellow
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object Label4: TLabel
+      Left = 13
+      Top = 16
+      Width = 39
+      Height = 18
+      Caption = 'Player'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
   end
   object painelDir: TPanel
     Left = 400
@@ -229,8 +255,8 @@ object FormJogo: TFormJogo
     ParentBackground = False
     TabOrder = 1
     object fase: TLabel
-      Left = 8
-      Top = 273
+      Left = 0
+      Top = 26
       Width = 85
       Height = 23
       Caption = ' Fase: 1'
@@ -238,6 +264,19 @@ object FormJogo: TFormJogo
       Font.Color = clYellow
       Font.Height = -19
       Font.Name = 'Verdana'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object pontosJogador: TLabel
+      Left = 7
+      Top = 96
+      Width = 67
+      Height = 19
+      Caption = 'Pontos: '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clYellow
+      Font.Height = -16
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentFont = False
     end
@@ -301,6 +340,7 @@ object FormJogo: TFormJogo
       Height = 25
       Caption = 'N'#227'o'
       TabOrder = 0
+      OnClick = jogarNaoClick
     end
     object jogarSim: TButton
       Left = 128
@@ -309,6 +349,92 @@ object FormJogo: TFormJogo
       Height = 25
       Caption = 'Sim'
       TabOrder = 1
+      OnClick = jogarSimClick
+    end
+  end
+  object carregarJogo: TPanel
+    Left = 96
+    Top = 86
+    Width = 305
+    Height = 97
+    Color = clActiveCaption
+    ParentBackground = False
+    TabOrder = 3
+    Visible = False
+    object Label2: TLabel
+      Left = 7
+      Top = 24
+      Width = 291
+      Height = 16
+      Caption = 'Deseja iniciar um novo jogo ou carregar um salvo?'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object btnNovoJogo: TButton
+      Left = 32
+      Top = 56
+      Width = 75
+      Height = 25
+      Caption = 'Novo'
+      TabOrder = 0
+      OnClick = btnNovoJogoClick
+    end
+    object btnCarregarJogo: TButton
+      Left = 175
+      Top = 56
+      Width = 75
+      Height = 25
+      Caption = 'Carregar'
+      TabOrder = 1
+      OnClick = btnCarregarJogoClick
+    end
+  end
+  object initJogo: TPanel
+    Left = 103
+    Top = 189
+    Width = 298
+    Height = 76
+    Color = clActiveCaption
+    ParentBackground = False
+    TabOrder = 4
+    object Label3: TLabel
+      Left = 6
+      Top = 16
+      Width = 138
+      Height = 19
+      Caption = 'Nome do Jogador: '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object txtNomeJogador: TEdit
+      Left = 150
+      Top = 16
+      Width = 141
+      Height = 24
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+    object btnIniciarJogo: TButton
+      Left = 104
+      Top = 46
+      Width = 75
+      Height = 25
+      Caption = 'Iniciar'
+      TabOrder = 1
+      OnClick = btnIniciarJogoClick
     end
   end
   object tempoTiro: TTimer
@@ -330,5 +456,9 @@ object FormJogo: TFormJogo
     Interval = 3000
     Left = 432
     Top = 472
+  end
+  object salvarXML: TXMLDocument
+    Left = 21
+    Top = 168
   end
 end

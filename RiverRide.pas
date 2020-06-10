@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.MPlayer,PngImage, Jpeg,
-  Vcl.StdCtrls;
+  Vcl.StdCtrls, Xml.xmldom, Xml.XMLIntf, Xml.XMLDoc;
 
 type
   TFormJogo = class(TForm)
@@ -30,9 +30,18 @@ type
 
     trilha: TMediaPlayer;
     levelUp: TMediaPlayer;
-
-
-    procedure FormCreate(Sender: TObject);
+    carregarJogo: TPanel;
+    Label2: TLabel;
+    btnNovoJogo: TButton;
+    btnCarregarJogo: TButton;
+    lblnomeJogador: TLabel;
+    pontosJogador: TLabel;
+    initJogo: TPanel;
+    Label3: TLabel;
+    txtNomeJogador: TEdit;
+    btnIniciarJogo: TButton;
+    salvarXML: TXMLDocument;
+    Label4: TLabel;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
     procedure atirar();
@@ -44,9 +53,20 @@ type
 
     procedure declararVitoria();
     procedure mudarNivel();
+
+    procedure iniciaJogo();
     function  VerificaColisao(O1, O2 : TControl):boolean;
 
     procedure exibeBatida();
+    procedure FormCreate(Sender: TObject);
+    procedure btnIniciarJogoClick(Sender: TObject);
+    procedure btnNovoJogoClick(Sender: TObject);
+    procedure btnCarregarJogoClick(Sender: TObject);
+    procedure jogarSimClick(Sender: TObject);
+    procedure jogarNaoClick(Sender: TObject);
+    procedure salvar();
+    procedure carregarJogoSalvo(nomeJogador :string);
+
   private
     { Private declarations }
   public
@@ -58,12 +78,40 @@ var
 
   numInimigosMatados, nivel: Integer;
   bateu : Boolean;
+  nomeJogador: string;
 
 implementation
 
 {$R *.dfm}
 
 procedure TFormJogo.FormCreate(Sender: TObject);
+begin
+  trilha.FileName := 'D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\sons\trilha.mp3';
+  trilha.Open;
+  trilha.Play;
+
+end;
+
+
+procedure TFormJogo.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+ var incremento : integer;
+begin
+  incremento := 10;
+
+  case key of
+    VK_LEFT  : if (nave.Left >= painelEsq.Width) then
+                  nave.Left := nave.Left - incremento;
+    VK_RIGHT : if (nave.Left <= 352) then
+                  nave.Left := nave.Left + incremento;
+    VK_UP    : nave.Top := nave.Top - incremento;
+    VK_DOWN  : nave.Top := nave.Top + incremento;
+    VK_SPACE:  atirar();
+  end;
+ end;
+
+
+procedure TFormJogo.iniciaJogo;
 begin
   DoubleBuffered := True;
   nave.Picture.LoadFromFile('D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\eu.png');
@@ -84,27 +132,35 @@ begin
   criaInimigo.OnTimer := criarInimigo;
   criaInimigo.Enabled := true;
 
+end;
+
+
+procedure TFormJogo.jogarNaoClick(Sender: TObject);
+begin
+  salvar();
+  FormJogo.Close();
+end;
+
+
+procedure TFormJogo.jogarSimClick(Sender: TObject);
+begin
+  salvar();
+  carregarJogoSalvo(lblnomeJogador.Caption);
+
+    ShowMessage('aki333333');
+  mensagemPerdeu.Visible := False;
+    ShowMessage('aki44444');
+
   trilha.FileName := 'D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\sons\trilha.mp3';
   trilha.Open;
   trilha.Play;
-  end;
+    showmessage('garaio');
+  criaInimigo.OnTimer := criarInimigo;
+  criaInimigo.Enabled := true;
+    showmessage('garaioSASSASA');
+  bateu := false;
+end;
 
-procedure TFormJogo.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
- var incremento : integer;
-begin
-  incremento := 10;
-
-  case key of
-    VK_LEFT  : if (nave.Left >= painelEsq.Width) then
-                  nave.Left := nave.Left - incremento;
-    VK_RIGHT : if (nave.Left <= 352) then
-                  nave.Left := nave.Left + incremento;
-    VK_UP    : nave.Top := nave.Top - incremento;
-    VK_DOWN  : nave.Top := nave.Top + incremento;
-    VK_SPACE:  atirar();
-  end;
- end;
 
 procedure TFormJogo.atirar();
  begin
@@ -112,7 +168,8 @@ procedure TFormJogo.atirar();
     tempoTiro.Enabled := True;
  end;
 
- procedure TFormJogo.criarTiro();
+
+procedure TFormJogo.criarTiro();
 var tiro: TPanel;
 tiroSom : TMediaPlayer ;
  begin
@@ -171,6 +228,7 @@ begin
                   if VerificaColisao(TPanel(FormJogo.Components[i]), TImage(FormJogo.Components[j])) then
                    begin
                       numInimigosMatados := numInimigosMatados + 1;
+                      pontosJogador.Caption := 'Pontos: ' + inttostr(numInimigosMatados);
                       // sumir com o Tiro
                       TPanel(FormJogo.Components[i]).Visible := False;
                       TPanel(FormJogo.Components[i]).Left := 1000;
@@ -215,6 +273,29 @@ begin
 
 end;
 
+
+procedure TFormJogo.btnIniciarJogoClick(Sender: TObject);
+begin
+  nomeJogador := txtNomeJogador.Text;
+  lblnomeJogador.Caption := nomeJogador;
+  initJogo.Visible := False;
+  carregarJogo.Visible:= true;
+end;
+
+
+procedure TFormJogo.btnCarregarJogoClick(Sender: TObject);
+begin
+  iniciaJogo();
+  carregarJogoSalvo(nomeJogador);
+  carregarJogo.Visible := False;
+end;
+
+
+procedure TFormJogo.btnNovoJogoClick(Sender: TObject);
+begin
+  iniciaJogo();
+  carregarJogo.Visible := False;
+end;
 
 
 procedure TFormJogo.criarInimigo(Sender: TObject);
@@ -393,7 +474,9 @@ begin
      explosaoSom.Play;
 
      mensagemPerdeu.Visible := True;
+     explosao.Visible := false;
 end;
+
 
 procedure TFormJogo.declararVitoria;
 var somVitoria: TMediaPlayer;
@@ -413,6 +496,7 @@ begin
     mensagemPerdeu.Visible := true;
 end;
 
+
 procedure TFormJogo.mudarNivel;
 begin
     levelUp.Close;
@@ -421,4 +505,119 @@ begin
     levelUp.Play;
 
 end;
- end.
+
+
+procedure TFormJogo.salvar;
+  var riverRide, jogadores, player, naveIcon: IXMLNode;
+  i: integer;
+  jaJogou: Boolean;
+begin
+  if FileExists('riverride.xml') then   //verificando se o arquivo existe
+  begin
+    jaJogou := False;
+    salvarXML.LoadFromFile('riverride.xml');
+    // se existir lê até a lista de jogadores
+    riverRide := salvarXML.ChildNodes.FindNode('riverride');
+
+    jogadores := riverRide.ChildNodes.FindNode('jogadores');
+
+      // percorrendo os jogadores
+    for i := 0 to jogadores.ChildNodes.Count-1 do
+    begin
+      // verificando se é o jogador já jogou antes. Se jogou sobreEscreva a ultima jogada dele
+      if jogadores.ChildNodes[i].Attributes['nome'] = lblnomeJogador.Caption then
+      begin
+        jaJogou := True;
+        player := jogadores.ChildNodes[i];
+
+        naveIcon := player.ChildNodes.FindNode('nave');
+
+        naveIcon.ChildValues['left'] := intToStr(nave.Left);;
+        naveIcon.ChildValues['top'] := intToStr(nave.Top);;
+
+        player.ChildValues['pontos'] := intToStr(numInimigosMatados);
+        player.ChildValues['fase'] := intToStr(nivel);
+
+      end;
+    end;
+
+    if not jaJogou then
+    begin
+      // adiciona um node jogador
+      player := jogadores.AddChild('jogador');
+
+      player.Attributes['nome'] := lblnomeJogador.Caption;
+
+      naveicon := player.AddChild('nave');
+      naveicon.AddChild('left').Text := intToStr(nave.Left);
+      naveicon.AddChild('top').Text := intToStr(nave.Top);
+      player.AddChild('pontos').Text := intToStr(numInimigosMatados);
+      player.AddChild('fase').Text := intToStr(nivel);
+    end;
+  end
+  else
+  begin
+
+    // se não existir cria o nó riverride e jogadores
+    salvarXML.Active := True;
+    riverRide := salvarXML.AddChild('riverride');
+
+    jogadores := riverRide.AddChild('jogadores');
+
+    // adiciona um node jogador
+    player := jogadores.AddChild('jogador');
+
+    player.Attributes['nome'] := lblnomeJogador.Caption;
+
+    naveicon := player.AddChild('nave');
+    naveicon.AddChild('left').Text := intToStr(nave.Left);
+    naveicon.AddChild('top').Text := intToStr(nave.Top);
+    player.AddChild('pontos').Text := intToStr(numInimigosMatados);
+    player.AddChild('fase').Text := intToStr(nivel);
+  end;
+
+  salvarXML.SaveToFile('riverride.xml');
+
+end;
+
+
+procedure TFormJogo.carregarJogoSalvo(nomeJogador :string);
+var riverRide, jogadores, player, naveIcon: IXMLNode;
+  i, left, top :Integer;
+begin
+
+  salvarXML.LoadFromFile('riverride.xml');
+
+  riverRide := salvarXML.ChildNodes.FindNode('riverride');
+
+  jogadores := riverRide.ChildNodes.FindNode('jogadores');
+
+  // percorrendo os jogadores
+  for i := 0 to jogadores.ChildNodes.Count-1 do
+  begin
+    // verificando se é o jogador a jogar
+    if jogadores.ChildNodes[i].Attributes['nome'] = nomeJogador then
+    begin
+
+      player := jogadores.ChildNodes[i];
+      naveIcon := player.ChildNodes.FindNode('nave');
+
+      left := StrtoInt(naveIcon.ChildValues['left']);
+      top := StrtoInt(naveIcon.ChildValues['top']);
+
+      nave.Top := top;
+      nave.Left := left;
+
+      numInimigosMatados := StrToInt(player.ChildValues['pontos']);
+      nivel := StrToInt(player.ChildValues['fase']);
+
+      fase.Caption := 'Fase: ' + inttostr(nivel);
+      pontosJogador.Caption := 'Pontos: ' + inttostr(numInimigosMatados);
+    end;
+  end;
+
+end;
+
+
+//FIM
+end.

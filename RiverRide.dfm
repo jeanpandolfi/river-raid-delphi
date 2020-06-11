@@ -310,13 +310,6 @@ object FormJogo: TFormJogo
     ParentBackground = False
     TabOrder = 2
     Visible = False
-    object Label1: TLabel
-      Left = 32
-      Top = 48
-      Width = 126
-      Height = 13
-      Caption = 'Deseja Jogar Novamente?'
-    end
     object mensagemFimJogo: TLabel
       Left = 16
       Top = 7
@@ -334,22 +327,13 @@ object FormJogo: TFormJogo
       ParentFont = False
     end
     object jogarNao: TButton
-      Left = 16
-      Top = 72
+      Left = 56
+      Top = 67
       Width = 57
       Height = 25
-      Caption = 'N'#227'o'
+      Caption = 'OK'
       TabOrder = 0
       OnClick = jogarNaoClick
-    end
-    object jogarSim: TButton
-      Left = 128
-      Top = 72
-      Width = 57
-      Height = 25
-      Caption = 'Sim'
-      TabOrder = 1
-      OnClick = jogarSimClick
     end
   end
   object carregarJogo: TPanel

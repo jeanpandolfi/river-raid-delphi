@@ -23,8 +23,6 @@ type
 
     mensagemPerdeu: TPanel;
     jogarNao: TButton;
-    jogarSim: TButton;
-    Label1: TLabel;
     mensagemFimJogo: TLabel;
     fase: TLabel;
 
@@ -62,7 +60,6 @@ type
     procedure btnIniciarJogoClick(Sender: TObject);
     procedure btnNovoJogoClick(Sender: TObject);
     procedure btnCarregarJogoClick(Sender: TObject);
-    procedure jogarSimClick(Sender: TObject);
     procedure jogarNaoClick(Sender: TObject);
     procedure salvar();
     procedure carregarJogoSalvo(nomeJogador :string);
@@ -139,26 +136,6 @@ procedure TFormJogo.jogarNaoClick(Sender: TObject);
 begin
   salvar();
   FormJogo.Close();
-end;
-
-
-procedure TFormJogo.jogarSimClick(Sender: TObject);
-begin
-  salvar();
-  carregarJogoSalvo(lblnomeJogador.Caption);
-
-    ShowMessage('aki333333');
-  mensagemPerdeu.Visible := False;
-    ShowMessage('aki44444');
-
-  trilha.FileName := 'D:\Documentos\Desktop\01 - Jogo\Rive Rider\img\sons\trilha.mp3';
-  trilha.Open;
-  trilha.Play;
-    showmessage('garaio');
-  criaInimigo.OnTimer := criarInimigo;
-  criaInimigo.Enabled := true;
-    showmessage('garaioSASSASA');
-  bateu := false;
 end;
 
 
@@ -584,38 +561,50 @@ end;
 procedure TFormJogo.carregarJogoSalvo(nomeJogador :string);
 var riverRide, jogadores, player, naveIcon: IXMLNode;
   i, left, top :Integer;
+  jogadorExiste: Boolean;
 begin
-
-  salvarXML.LoadFromFile('riverride.xml');
-
-  riverRide := salvarXML.ChildNodes.FindNode('riverride');
-
-  jogadores := riverRide.ChildNodes.FindNode('jogadores');
-
-  // percorrendo os jogadores
-  for i := 0 to jogadores.ChildNodes.Count-1 do
+  jogadorExiste := false;
+  if FileExists('riverride.xml') then   //verificando se o arquivo existe
   begin
-    // verificando se é o jogador a jogar
-    if jogadores.ChildNodes[i].Attributes['nome'] = nomeJogador then
+    salvarXML.LoadFromFile('riverride.xml');
+
+    riverRide := salvarXML.ChildNodes.FindNode('riverride');
+
+    jogadores := riverRide.ChildNodes.FindNode('jogadores');
+
+    // percorrendo os jogadores
+    for i := 0 to jogadores.ChildNodes.Count-1 do
     begin
+      // verificando se é o jogador a jogar
+      if jogadores.ChildNodes[i].Attributes['nome'] = nomeJogador then
+      begin
+        jogadorExiste := true;
 
-      player := jogadores.ChildNodes[i];
-      naveIcon := player.ChildNodes.FindNode('nave');
+        player := jogadores.ChildNodes[i];
+        naveIcon := player.ChildNodes.FindNode('nave');
 
-      left := StrtoInt(naveIcon.ChildValues['left']);
-      top := StrtoInt(naveIcon.ChildValues['top']);
+        left := StrtoInt(naveIcon.ChildValues['left']);
+        top := StrtoInt(naveIcon.ChildValues['top']);
 
-      nave.Top := top;
-      nave.Left := left;
+        nave.Top := top;
+        nave.Left := left;
 
-      numInimigosMatados := StrToInt(player.ChildValues['pontos']);
-      nivel := StrToInt(player.ChildValues['fase']);
+        numInimigosMatados := StrToInt(player.ChildValues['pontos']);
+        nivel := StrToInt(player.ChildValues['fase']);
 
-      fase.Caption := 'Fase: ' + inttostr(nivel);
-      pontosJogador.Caption := 'Pontos: ' + inttostr(numInimigosMatados);
+        fase.Caption := 'Fase: ' + inttostr(nivel);
+        pontosJogador.Caption := 'Pontos: ' + inttostr(numInimigosMatados);
+      end;
     end;
+  end
+  else
+  begin
+    showmessage('Você não possui nenhum jogo salvo, então iniciará um novo jogo');
+    jogadorExiste := true;
   end;
 
+  if not jogadorExiste then
+    showmessage('Você não possui nenhum jogo salvo, então iniciará um novo jogo');
 end;
 
 
